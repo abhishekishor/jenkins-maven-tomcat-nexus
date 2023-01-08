@@ -1,0 +1,77 @@
+def ip_address='172.31.7.77'
+def port=8081
+// def version=4.0
+def tomcat_ip_address='3.1.49.89'
+
+node {
+    stage('test') {
+        echo 'Knowledge Is Free'
+    }
+
+        echo "=======================================Checking Out Code from Github======================================="
+        
+        stage('Git Checkout') {
+        
+        git branch: 'main', credentialsId: 'Github', url: 'https://github.com/abhishekishor/tomcat-maven-jenkins.git'
+        
+        echo "=======================================Pulled Code from Github======================================="
+        
+    }
+    
+    echo "=========================================Building Maven Project=========================================="
+    
+    stage('Maven Build') {
+        
+        def MavenHome= tool name: "Maven-Tool", type: "maven"
+        
+        def mavenCMD= "${MavenHome}/bin/mvn"
+        
+        sh "${mavenCMD} clean package"
+        
+    echo "==========================================Built Maven Project============================================"
+    
+    echo "=========================================Archieving Artifact============================================="
+    
+        archiveArtifacts artifacts: '**/*.war'
+    
+    echo "==========================================Artifact Archieved============================================="
+        
+    }
+    
+    stage('Deployment') {
+        
+        sshagent(['tomcat-server']) {
+            
+            sh "scp -o StrictHostKeyChecking=no /var/lib/jenkins/workspace/tomcat-nexus/target/maven-web-application.war ubuntu@'${tomcat_ip_address}':/opt/tomcat/webapps"
+    
+}
+        
+    }
+    
+    stage('Uploading-Artifact') {
+        
+        def mavenPom = readMavenPom file: 'pom.xml'
+        
+    echo "=======================================Uploading Artifact========================================="
+    
+        nexusArtifactUploader artifacts: [
+    [
+        artifactId: 'maven-web-application', 
+        classifier: '', 
+        file: 'target/maven-web-application.war', 
+        type: 'war'
+    ]
+],
+    credentialsId: 'nexus3', 
+    groupId: 'com.mt', 
+    nexusUrl: "${ip_address}:${port}", 
+    nexusVersion: 'nexus3', 
+    protocol: 'http', 
+    repository: 'upload-artifact', 
+    version: "${mavenPom.version}"
+    
+    echo "=======================================Artifact Uploaded========================================="
+        
+    }
+    
+}
