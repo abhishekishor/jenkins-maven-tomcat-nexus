@@ -56,14 +56,14 @@ node {
     
         nexusArtifactUploader artifacts: [
     [
-        artifactId: 'maven-web-application', 
+        artifactId: "${mavenPom.artifactId}", 
         classifier: '', 
-        file: 'target/maven-web-application.war', 
-        type: 'war'
+        file: "target/${mavenPom.artifactId}.war", 
+        type: "${mavenPom.packaging}"
     ]
 ],
     credentialsId: 'nexus3', 
-    groupId: 'com.mt', 
+    groupId: "${mavenPom.groupId}", 
     nexusUrl: "${ip_address}:${port}", 
     nexusVersion: 'nexus3', 
     protocol: 'http', 
