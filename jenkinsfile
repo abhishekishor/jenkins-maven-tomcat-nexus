@@ -1,7 +1,7 @@
-def ip_address='172.31.7.77'
-def port=8081
+def ip_address="172.31.7.77"
+// def port=8081
 // def version=4.0
-def tomcat_ip_address='3.1.49.89'
+def tomcat_ip_address="172.31.21.87"
 
 node {
     stage('test') {
@@ -52,6 +52,8 @@ node {
         
         def mavenPom = readMavenPom file: 'pom.xml'
         
+        def nexusRepoName = mavenPom.version.endsWith ("SNAPSHOT") ? "upload-artifact-snapshot" : "upload-artifact"
+
     echo "=======================================Uploading Artifact========================================="
     
         nexusArtifactUploader artifacts: [
@@ -64,10 +66,10 @@ node {
 ],
     credentialsId: 'nexus3', 
     groupId: "${mavenPom.groupId}", 
-    nexusUrl: "${ip_address}:${port}", 
+    nexusUrl: "${ip_address}:8081", 
     nexusVersion: 'nexus3', 
     protocol: 'http', 
-    repository: 'upload-artifact', 
+    repository: "${nexusRepoName}", 
     version: "${mavenPom.version}"
     
     echo "=======================================Artifact Uploaded========================================="
