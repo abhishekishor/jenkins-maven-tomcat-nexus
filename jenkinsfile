@@ -1,11 +1,16 @@
 def ip_address="172.31.7.77"
-// def port=8081
-// def version=4.0
+
 def tomcat_ip_address="172.31.21.87"
 
 node {
+    
+    timestamper {
+
+        //   buildDiscarder (logRotator(numToKeepStr: '2'))
+
     stage('test') {
         echo 'Knowledge Is Free'
+    
     }
 
         echo "=======================================Checking Out Code from Github======================================="
@@ -58,8 +63,7 @@ node {
     
         nexusArtifactUploader artifacts: [
     [
-        artifactId: "${mavenPom.artifactId}", 
-        classifier: '', 
+        artifactId: "${mavenPom.artifactId}",
         file: "target/${mavenPom.artifactId}.war", 
         type: "${mavenPom.packaging}"
     ]
@@ -75,5 +79,7 @@ node {
     echo "=======================================Artifact Uploaded========================================="
         
     }
+
+  }
     
 }
